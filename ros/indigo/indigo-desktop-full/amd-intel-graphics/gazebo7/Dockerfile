@@ -11,16 +11,16 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 # setup sources.list
-RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list \
-    \
+RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
 # setup keys
-    && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116 \
-    \
+RUN sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 421C365BD9FF1F717815A3895523BAEEB01FA116 \
+    && sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F42ED6FBAB17C654
 # update the repository and install ros packages
-    && apt-get update -y \
-    && apt-get install -y -q --no-install-recommends apt-transport-https aptitude \
-    && aptitude install -y -q -R ros-indigo-desktop python-rosinstall ninja-build python3-pip python3-setuptools \
-    ros-indigo-rosbridge-library ros-indigo-rosbridge-server ros-indigo-rosbridge-suite
+RUN apt-get update -y
+RUN apt-get install -y -q --no-install-recommends apt-transport-https aptitude
+RUN apt-get install -y python3 python3-minimal python3-pip python3-setuptools python-rosinstall ninja-build ros-indigo-desktop
+#RUN aptitude install -y -q -R ros-indigo-desktop python-rosinstall ninja-build python-pip python-setuptools \
+#    ros-indigo-rosbridge-library ros-indigo-rosbridge-server ros-indigo-rosbridge-suite
 
 # install additional system packages and ros packages
 # update gazebo2.2 to gazebo7
@@ -107,7 +107,9 @@ USER root
 RUN aptitude install -y -q -R python3-dev libyaml-dev libyaml-0-2  libyaml-cpp0.5 libyaml-cpp-dev && pip3 install --upgrade pip && pip3 install catkin-tools rospkg ws4py transforms3d trollius defusedxml
 
 # install dependecies for ros genmsg
-RUN pip install empy
+RUN pip3 install empy
+RUN pip3 install scipy
+RUN aptitude install -y python-scipy
 
 # aptitude clean
 RUN apt-get autoclean \
