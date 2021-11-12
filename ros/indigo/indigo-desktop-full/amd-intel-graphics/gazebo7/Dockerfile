@@ -27,7 +27,8 @@ RUN apt-get install -y python3 python3-minimal python3-pip python3-setuptools py
 RUN echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/gazebo-latest.list \
     && curl http://packages.osrfoundation.org/gazebo.key |apt-key add - \
     && aptitude update -y -q \
-    && aptitude remove -y -q gazebo2; aptitude install -y -q -R gazebo7
+#    && aptitude remove -y -q gazebo2; aptitude install -y -q -R gazebo7
+	&& aptitude upgrade -y -q -R gazebo2
 
 RUN aptitude install -y -q -R  ros-indigo-gazebo7-ros-control ros-indigo-gazebo7-ros-pkgs
 
@@ -54,6 +55,7 @@ RUN aptitude install -y -q -R libgl1-mesa-glx libgl1-mesa-dri \
 
 # install ros related components
 RUN aptitude install -y -q -R ros-indigo-moveit-full \
+	ros-indigo-gazebo-ros-control \
     ros-indigo-ros-controllers \
     ros-indigo-controller-manager \
     ros-indigo-rqt-controller-manager \
@@ -106,9 +108,12 @@ USER root
 # install ros python3 support
 RUN aptitude install -y -q -R python3-dev libyaml-dev libyaml-0-2  libyaml-cpp0.5 libyaml-cpp-dev && pip3 install --upgrade pip && pip3 install catkin-tools rospkg ws4py transforms3d trollius defusedxml
 
+RUN apt-get install -y spacenavd ros-indigo-spacenav-node ros-indigo-geographic-msgs ros-indigo-robot-localization ros-indigo-joy libiw-dev libv4l-dev daemontools libudev-dev libsdl1.2-dev libblas-dev liblapack-dev
+#daemontools libudev-dev libsdl1.2-dev
+
+
 # install dependecies for ros genmsg
 RUN pip3 install empy
-RUN pip3 install scipy
 RUN aptitude install -y python-scipy
 
 # aptitude clean
@@ -123,6 +128,9 @@ RUN chown -R ros:ros  /home/ros/.config/QtProject/
 
 # config gazebo volume
 RUN mkdir -p /home/ros/.gazebo/models && chown -R ros:ros /home/ros/.gazebo
+
+RUN echo "cd /mnt/workspace && source devel/setup.bash" >> /home/ros/.bashrc
+
 
 # share this volume with other containers from this image
 VOLUME ["/home/ros/.gazebo/models"]
