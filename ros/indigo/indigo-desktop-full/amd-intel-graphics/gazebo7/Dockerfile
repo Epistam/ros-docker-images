@@ -11,24 +11,23 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 # setup sources.list
-RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
+RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list \
+    \
 # setup keys
-RUN sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 421C365BD9FF1F717815A3895523BAEEB01FA116 \
-    && sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F42ED6FBAB17C654
+    && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116 \
+    \
 # update the repository and install ros packages
-RUN apt-get update -y
-RUN apt-get install -y -q --no-install-recommends apt-transport-https aptitude
-RUN apt-get install -y python3 python3-minimal python3-pip python3-setuptools python-rosinstall ninja-build ros-indigo-desktop
-#RUN aptitude install -y -q -R ros-indigo-desktop python-rosinstall ninja-build python-pip python-setuptools \
-#    ros-indigo-rosbridge-library ros-indigo-rosbridge-server ros-indigo-rosbridge-suite
+    && apt-get update -y \
+    && apt-get install -y -q --no-install-recommends apt-transport-https aptitude \
+    && aptitude install -y -q -R ros-indigo-desktop python-rosinstall ninja-build python3-pip python3-setuptools \
+    ros-indigo-rosbridge-library ros-indigo-rosbridge-server ros-indigo-rosbridge-suite
 
 # install additional system packages and ros packages
 # update gazebo2.2 to gazebo7
 RUN echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/gazebo-latest.list \
     && curl http://packages.osrfoundation.org/gazebo.key |apt-key add - \
     && aptitude update -y -q \
-#    && aptitude remove -y -q gazebo2; aptitude install -y -q -R gazebo7
-	&& aptitude upgrade -y -q -R gazebo2
+    && aptitude remove -y -q gazebo2; aptitude install -y -q -R gazebo7
 
 RUN aptitude install -y -q -R  ros-indigo-gazebo7-ros-control ros-indigo-gazebo7-ros-pkgs
 
@@ -55,7 +54,6 @@ RUN aptitude install -y -q -R libgl1-mesa-glx libgl1-mesa-dri \
 
 # install ros related components
 RUN aptitude install -y -q -R ros-indigo-moveit-full \
-	ros-indigo-gazebo-ros-control \
     ros-indigo-ros-controllers \
     ros-indigo-controller-manager \
     ros-indigo-rqt-controller-manager \
@@ -108,13 +106,8 @@ USER root
 # install ros python3 support
 RUN aptitude install -y -q -R python3-dev libyaml-dev libyaml-0-2  libyaml-cpp0.5 libyaml-cpp-dev && pip3 install --upgrade pip && pip3 install catkin-tools rospkg ws4py transforms3d trollius defusedxml
 
-RUN apt-get install -y spacenavd ros-indigo-spacenav-node ros-indigo-geographic-msgs ros-indigo-robot-localization ros-indigo-joy libiw-dev libv4l-dev daemontools libudev-dev libsdl1.2-dev libblas-dev liblapack-dev
-#daemontools libudev-dev libsdl1.2-dev
-
-
 # install dependecies for ros genmsg
-RUN pip3 install empy
-RUN aptitude install -y python-scipy
+RUN pip install empy
 
 # aptitude clean
 RUN apt-get autoclean \
@@ -128,9 +121,6 @@ RUN chown -R ros:ros  /home/ros/.config/QtProject/
 
 # config gazebo volume
 RUN mkdir -p /home/ros/.gazebo/models && chown -R ros:ros /home/ros/.gazebo
-
-RUN echo "cd /mnt/workspace && source devel/setup.bash" >> /home/ros/.bashrc
-
 
 # share this volume with other containers from this image
 VOLUME ["/home/ros/.gazebo/models"]
